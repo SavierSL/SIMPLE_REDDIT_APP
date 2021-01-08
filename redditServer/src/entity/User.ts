@@ -1,5 +1,5 @@
 import { IsEmail, Length } from "class-validator";
-import { Field } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -14,24 +14,26 @@ import { v4 as uuid } from "uuid";
 
 import { Post } from "./Post";
 
+@ObjectType()
 @Entity("users") //decorators
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Field()
-  @Column({ type: String })
+  @Column({ type: String, unique: true })
   @Length(1, 255)
   username: string;
+
+  @Field()
+  @Column({ type: String })
+  @Length(1, 255)
+  @IsEmail()
+  email: string;
 
   @Column({ type: String })
   @Length(1, 255)
   password: string;
-
-  @Column()
-  @Length(1, 255)
-  @IsEmail()
-  email: string;
 
   @Field(() => String)
   @CreateDateColumn()
