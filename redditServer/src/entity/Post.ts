@@ -9,13 +9,13 @@ import {
   BeforeInsert,
   ManyToOne,
 } from "typeorm";
-import Model from "./Model";
+
 import { User } from "./User";
 import { v4 as uuid } from "uuid";
 
 @ObjectType()
 @Entity("posts") //decorators
-export class Post extends Model {
+export class Post extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
