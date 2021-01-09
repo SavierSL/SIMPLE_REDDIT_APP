@@ -10,18 +10,52 @@ import { HelloResolver } from "./resolvers/Hello";
 import { PostResolver } from "./resolvers/Post";
 import { UserResolver } from "./resolvers/Users";
 
+import redis from "redis";
+import session from "express-session";
+import connectRedis from "connect-redis";
+import { MyContext } from "./types";
+import { _prod } from "./_prod";
+
+declare module "express-session" {
+  export interface SessionData {
+    userId: number;
+  }
+}
+
 const main = async () => {
+  //server
+  const app = express();
+  //reddis
+  const RedisStore = connectRedis(session);
+  const redisClient = redis.createClient();
+  //token config
+  app.use(
+    session({
+      name: "qid", //cookie name
+      store: new RedisStore({
+        client: redisClient,
+        disableTouch: true,
+      }), // disableTouch forever expiration
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+        httpOnly: true,
+        secure: _prod, //only works in https
+        sameSite: "lax", //csrf
+      },
+      saveUninitialized: false,
+      secret: "akoaysixave",
+      resave: false,
+    })
+  );
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false, //for
     }),
-    // context: () => ({})
+    context: ({ req, res }): MyContext => ({ req, res }),
   });
-  //server
-  const app = express();
   apolloServer.applyMiddleware({ app });
-
   // app.get("/", async (_, res) => {
   //   res.json("hello");
   // });

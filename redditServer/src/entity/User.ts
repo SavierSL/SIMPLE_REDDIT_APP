@@ -17,6 +17,7 @@ import { Post } from "./Post";
 @ObjectType()
 @Entity("users") //decorators
 export class User extends BaseEntity {
+  @Field()
   @PrimaryGeneratedColumn()
   id: number;
 
