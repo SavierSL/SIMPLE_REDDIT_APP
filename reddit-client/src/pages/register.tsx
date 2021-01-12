@@ -12,17 +12,11 @@ import { useMutation } from "urql";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
 import { useRegisterMutation } from "../generated/graphql";
-
-const REGISTER_MUT = `mutation Register($username: String!,$email:String!, $password:String!){
-  registerUser(email:$email ,username: $username, password: $password){
-    username
-    email
-    id
-  }
-}`;
+import { useRouter } from "next/router";
 
 export interface registerProps {}
 const Register: React.FC<registerProps> = ({}) => {
+  const router = useRouter();
   const [, register] = useRegisterMutation();
   return (
     <Wrapper variant="small">
@@ -31,12 +25,25 @@ const Register: React.FC<registerProps> = ({}) => {
         initialValues={{ username: "", password: "", email: "" }}
         onSubmit={async (values, { setErrors }) => {
           const response = await register(values);
+          console.log(response);
           if (response.error) {
+            const emailError = response.error.message.includes("Email")
+              ? "Email already exist"
+              : "";
+            const passwordError = response.error.message.includes("Password")
+              ? "Password must be 6 characters"
+              : "";
+            const usernameError = response.error.message.includes("Username")
+              ? "Username is already existing"
+              : "";
             setErrors({
-              email: response.error.message,
-              username: response.error.message,
-              password: response.error.message,
+              email: emailError,
+              password: passwordError,
+              username: usernameError,
             });
+          } else if (response.data.registerUser) {
+            //worked
+            router.push("/");
           }
         }}
       >

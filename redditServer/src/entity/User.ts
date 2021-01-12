@@ -32,7 +32,7 @@ export class User extends BaseEntity {
   @IsEmail()
   email: string;
 
-  @Column({ type: String })
+  @Column({ type: String, nullable: false })
   @Length(1, 255)
   password: string;
 

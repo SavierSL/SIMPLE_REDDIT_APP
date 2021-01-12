@@ -26,7 +26,8 @@ export class UserResolver {
   async registerUser(
     @Arg("username") username: string,
     @Arg("email") email: string,
-    @Arg("password") password: string
+    @Arg("password") password: string,
+    @Ctx() { req }: MyContext
   ): Promise<User | String | undefined> {
     const user = await User.find({ email });
     const user1 = await User.find({ username });
@@ -34,17 +35,22 @@ export class UserResolver {
       throw new Error("Email is already in use");
     }
     if (user1.length !== 0) {
-      throw new Error(`${username} is already in use`);
+      throw new Error(`Username is already in use`);
+    }
+    if (password.length < 5) {
+      throw new Error(`Password is required`);
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPass = await bcrypt.hash(password, salt);
 
     console.log(user);
-    return await User.create({
+    const newUser = await User.create({
       username: username,
       email: email,
       password: hashedPass,
     }).save();
+    req.session.userId = newUser.id;
+    return newUser;
   }
   @Mutation(() => User)
   async logInUser(

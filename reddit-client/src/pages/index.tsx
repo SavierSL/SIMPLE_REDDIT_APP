@@ -6,7 +6,13 @@ import {
   ListIcon,
   ListItem,
 } from "@chakra-ui/react";
+import React from "react";
+import NavBar from "../components/NavBar";
 
-const Index = () => <>Hello</>;
+const Index = () => (
+  <>
+    <NavBar /> Hello
+  </>
+);
 
 export default Index;
